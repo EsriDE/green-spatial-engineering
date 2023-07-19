@@ -169,3 +169,6 @@ emissions
 The Green Spatial Engineering Dashboard shows the estimated carbon equivalents in kilograms for our spatial data science workflows. The first use case represents the carbon footprint for querying and collecting the real-time traffic information from the city of Bonn every 15 minutes.
 
 ![Screenshot Green Spatial Engineering](https://github.com/EsriDE/green-spatial-engineering/assets/3008093/738c522e-fef0-46cb-8d8f-057c20148cfd)
+
+## Links
+* [GeoDev Germany Community](https://community.esri.com/t5/geodev-germany/ct-p/geodev-germany)
