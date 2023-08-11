@@ -20,6 +20,7 @@ def count_persons(project_name: str, use_case: str, csv_files_pattern: str):
     """
     experiment = Experiment(project_name, use_case)
     tracker_name = experiment.create_tracker_name()
+    logging.getLogger("codecarbon").info(tracker_name)
     
     # Creates a new tracker object    
     tracker = EmissionsTracker(project_name=tracker_name, output_dir="log")
@@ -29,6 +30,7 @@ def count_persons(project_name: str, use_case: str, csv_files_pattern: str):
 
     try:        
         for csv_file in glob(csv_files_pattern):
+            logging.getLogger("codecarbon").info(f"Processing {csv_file} ...")
             df = pd.read_csv(csv_file)
             count_persons = df["person"].nunique()
     except Exception as ex:
@@ -49,6 +51,8 @@ def count_persons_EsriBonn(project_name: str, use_case: str, csv_files_pattern: 
     # Creates a new tracker object
     experiment = Experiment(project_name, use_case)
     tracker_name = experiment.create_tracker_name()
+    logging.getLogger("codecarbon").info(tracker_name)
+
     tracker = EmissionsTracker(project_name=tracker_name, output_dir="log")
 
     # Start tracking
@@ -56,6 +60,7 @@ def count_persons_EsriBonn(project_name: str, use_case: str, csv_files_pattern: 
 
     try:        
         for csv_file in glob(csv_files_pattern):
+            logging.getLogger("codecarbon").info(f"Processing {csv_file} ...")
             sdf = read_traffic_as_sdf(csv_file)
             count_persons = sdf["person"].nunique()
     except Exception as ex:
