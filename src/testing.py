@@ -10,6 +10,7 @@ class TestReadTraffic(TestCase):
         self._traffic_content_one = """
             id,trip,person,vehicle_type,distance_crossed,longitude,latitude,trip_time
             1,16980,9987,,69450,7.09401947966322,50.7229459953311,2023-07-07T00:01:00
+            289645,12245,7195,Bike,11225393,7.08591589604559,50.7453996682822,2023-07-07T07:00:00
         """
 
     def test_read(self):
@@ -17,7 +18,7 @@ class TestReadTraffic(TestCase):
         with mock.patch('builtins.open', file_mock):
             traffic_df = read_traffic_as_df("<ANY>")
             self.assertIsNotNone(traffic_df, "Traffic dataframe must be initialized!")
-            self.assertEquals(1, traffic_df.shape[0], "Only one agent entry expected!")
+            self.assertEquals(2, traffic_df.shape[0], "Two agent entrys expected!")
             self.assertTrue(issubdtype(traffic_df["trip_time"], datetime64), "Trip time must be a datetime!")
 
     def test_read_spatial(self):
