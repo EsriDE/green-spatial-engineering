@@ -5,6 +5,8 @@ import logging
 import os
 import pandas as pd
 from spatialcarbon.experiment import Experiment
+from spatialcarbon.data import get_print_emissions, get_summary_emissions
+from traffic.read import read_traffic_as_sdf
 
 
 
@@ -18,6 +20,7 @@ def count_persons(project_name: str, use_case: str, csv_files_pattern: str):
     """
     experiment = Experiment(project_name, use_case)
     tracker_name = experiment.create_tracker_name()
+    logging.getLogger("codecarbon").info(tracker_name)
     
     # Creates a new tracker object    
     tracker = EmissionsTracker(project_name=tracker_name, output_dir="log")
@@ -27,6 +30,7 @@ def count_persons(project_name: str, use_case: str, csv_files_pattern: str):
 
     try:        
         for csv_file in glob(csv_files_pattern):
+            logging.getLogger("codecarbon").info(f"Processing {csv_file} ...")
             df = pd.read_csv(csv_file)
             count_persons = df["person"].nunique()
     except Exception as ex:
@@ -34,22 +38,60 @@ def count_persons(project_name: str, use_case: str, csv_files_pattern: str):
     finally:
         # Stop tracking
         emissions = tracker.stop()
-        print(emissions)
-    
+        logging.getLogger("codecarbon").info(get_print_emissions(emissions))    
 
-def count_persons_EsriBonn():
+def count_persons_EsriBonn(project_name: str, use_case: str, csv_files_pattern: str):
 
     pt = Point({"x" : -118.15, "y" : 33.80, 
             "spatialReference" : {"wkid" : 4326}})
-    return type(pt)
+    # type(pt)
+
+    # Read as spatial enabled dataframe
+
+    # Creates a new tracker object
+    experiment = Experiment(project_name, use_case)
+    tracker_name = experiment.create_tracker_name()
+    logging.getLogger("codecarbon").info(tracker_name)
+
+    tracker = EmissionsTracker(project_name=tracker_name, output_dir="log")
+
+    # Start tracking
+    tracker.start()
+
+    try:        
+        for csv_file in glob(csv_files_pattern):
+            logging.getLogger("codecarbon").info(f"Processing {csv_file} ...")
+            sdf = read_traffic_as_sdf(csv_file)
+            count_persons = sdf["person"].nunique()
+    except Exception as ex:
+        logging.error(ex)
+    finally:
+        # Stop tracking
+        emissions = tracker.stop()
+        logging.getLogger("codecarbon").info(get_print_emissions(emissions))
+
+
 
 if __name__=="__main__":
 
+    logging.basicConfig()
+    logger = logging.getLogger("codecarbon")
+    
     traffic_dir = os.getenv("TRAFFIC_DIR")
-
+    
     try:
+        if None is traffic_dir:
+            raise ValueError("Traffic directory not specified!")
+
         count_persons("DTB", "cnt P Midnight", f"{traffic_dir}/midnight_*.csv")
         count_persons("DTB", "cnt P Early Weekday", f"{traffic_dir}/early_weekday_*.csv")
-        count_persons_EsriBonn()
+        count_persons("DTB", "cnt P Commute Weekday", f"{traffic_dir}/commute_weekday_*.csv")
+        count_persons_EsriBonn("DTB", "cnt Esri Commmute Weekday", f"{traffic_dir}/commute_weekday_*.csv")
+
+        logging.getLogger("codecarbon").info("")
+        logging.getLogger("codecarbon").info("Project summary")
+        logging.getLogger("codecarbon").info("===============")
+        for summary in get_summary_emissions("log/emissions.csv"):
+            logging.getLogger("codecarbon").info(summary)
     except Exception as ex:
-        logging.error(ex)
+        logger.error(ex)
