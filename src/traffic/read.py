@@ -7,7 +7,9 @@ def read_traffic_as_df(filepath: str) -> pd.DataFrame:
 
     :param str filepath:
     """
-    return pd.read_csv(filepath)
+    traffic_df = pd.read_csv(filepath)
+    traffic_df["trip_time"] = pd.to_datetime(traffic_df["trip_time"])
+    return traffic_df
 
 def read_traffic_as_sdf(filepath: str):
     """
