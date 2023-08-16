@@ -30,7 +30,7 @@ class TestReadTraffic(TestCase):
     def test_read_featureclass(self):
         file_mock = mock.mock_open(read_data=self._traffic_content_one)
         with mock.patch('builtins.open', file_mock):
-            traffic_fc = read_traffic_to_featureclass("<ANY>")
+            traffic_fc = read_traffic_to_featureclass("traffic")
             self.assertIsNotNone(traffic_fc, "The feature class must not be none!")
 
 
