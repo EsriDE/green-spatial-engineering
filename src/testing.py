@@ -1,5 +1,5 @@
 from numpy import datetime64, issubdtype
-from traffic.read import read_traffic_as_df, read_traffic_as_sdf
+from traffic.read import read_traffic_as_df, read_traffic_as_sdf, read_traffic_to_featureclass
 import unittest
 from unittest import mock, TestCase
 
@@ -26,6 +26,12 @@ class TestReadTraffic(TestCase):
         with mock.patch('builtins.open', file_mock):
             traffic_sdf = read_traffic_as_sdf("<ANY>")
             self.assertIsNotNone(traffic_sdf.spatial, "The spatial enabled dataframe must not be none!")
+
+    def test_read_featureclass(self):
+        file_mock = mock.mock_open(read_data=self._traffic_content_one)
+        with mock.patch('builtins.open', file_mock):
+            traffic_fc = read_traffic_to_featureclass("<ANY>")
+            self.assertIsNotNone(traffic_fc, "The feature class must not be none!")
 
 
 
