@@ -1,5 +1,7 @@
+import arcpy
+from datetime import datetime
 from numpy import datetime64, issubdtype
-from traffic.read import read_traffic_as_df, read_traffic_as_sdf, read_traffic_to_featureclass
+from traffic.read import read_traffic_as_df, read_traffic_as_sdf, read_traffic_to_featureclass, read_traffic_as_featureclass
 import unittest
 from unittest import mock, TestCase
 
@@ -27,11 +29,24 @@ class TestReadTraffic(TestCase):
             traffic_sdf = read_traffic_as_sdf("<ANY>")
             self.assertIsNotNone(traffic_sdf.spatial, "The spatial enabled dataframe must not be none!")
 
-    def test_read_featureclass(self):
+    def test_read_to_featureclass(self):
         file_mock = mock.mock_open(read_data=self._traffic_content_one)
         with mock.patch('builtins.open', file_mock):
             traffic_fc = read_traffic_to_featureclass("traffic")
             self.assertIsNotNone(traffic_fc, "The feature class must not be none!")
+
+    def test_read_as_featureclass(self):
+        file_mock = mock.mock_open(read_data=self._traffic_content_one)
+        with mock.patch('builtins.open', file_mock):
+            traffic_fc = read_traffic_as_featureclass("C:/src/Data.gdb", "traffic")
+            self.assertIsNotNone(traffic_fc, "The feature class must not be none!")
+            with arcpy.da.SearchCursor(traffic_fc, ["trip_time"]) as search_cursor:
+                row = next(search_cursor)
+                self.assertLess(0, len(row), "At least one row value was expected!")
+                trip_time = row[0]
+                self.assertIsInstance(trip_time, datetime, "Trip as datetime was expected!")
+                self.assertEquals(1, trip_time.minute, "The trip time is wrong!")
+                    
 
 
 
