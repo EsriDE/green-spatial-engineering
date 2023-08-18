@@ -54,7 +54,6 @@ def read_traffic_as_featureclass(workspace: str, filepath: str):
     # Siehe hier: https://github.com/esride-jts/geoint-toolbox/blob/master/src/geoint/gdelt_workspace.py
     
     # trip time as DATE as so on
-
     traffic_df = read_traffic_as_df(filepath)    
     #traffic_df["trip_time"] = traffic_df["trip_time"].apply(lambda trip_time: datetime(trip_time.year, trip_time.month, trip_time.day)) #traffic_df["trip_time"].apply(lambda datetime: datetime.isoformat())
     #traffic_df["XY"] = list(zip(traffic_df["longitude"], traffic_df["latitude"]))
@@ -62,9 +61,6 @@ def read_traffic_as_featureclass(workspace: str, filepath: str):
     
     feature_class_result = CreateFeatureclass(workspace, filename, geometry_type="POINT", spatial_reference=4326)
     feature_class = feature_class_result[0]
-
-    # for column in traffic_df.columns:
-    #     pass
     
     AddFields(feature_class,
         [["id", "LONG"],
@@ -84,8 +80,11 @@ def read_traffic_as_featureclass(workspace: str, filepath: str):
             values_tuple = tuple(record)
             trip_time = record[7]
             #trip_time = datetime(year=trip_time.year, month=trip_time.month, day=trip_time.day, hour=trip_time.hour, minute=trip_time.minute, second=trip_time.second)
+            # numpy.datatime64 is not valid for a feature class 
             trip_time = pd.Timestamp(trip_time)
+            # concatenate tuple to 
             values_tuple = (values_tuple[0:7]) + (trip_time,) # + (values_tuple[-1],)
+            # geometry (SHAPE@XY) must be a tuple
             values_tuple += ((record[5], record[6]), )
             insert_cursor.insertRow(values_tuple)
     

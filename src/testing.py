@@ -46,9 +46,6 @@ class TestReadTraffic(TestCase):
                 trip_time = row[0]
                 self.assertIsInstance(trip_time, datetime, "Trip as datetime was expected!")
                 self.assertEquals(1, trip_time.minute, "The trip time is wrong!")
-                    
-
-
 
 if __name__ == "__main__":
     unittest.main()
