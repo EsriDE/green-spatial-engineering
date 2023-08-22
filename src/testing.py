@@ -1,7 +1,9 @@
 import arcpy
 from datetime import datetime
 from numpy import datetime64, issubdtype
+from traffic.calculate import calculate_vehicle_emissions
 from traffic.read import read_traffic_as_df, read_traffic_as_sdf, read_traffic_to_featureclass, read_traffic_as_featureclass
+from traffic.vehicle import CarSize, DieselCar
 import unittest
 from unittest import mock, TestCase
 
@@ -46,6 +48,17 @@ class TestReadTraffic(TestCase):
                 trip_time = row[0]
                 self.assertIsInstance(trip_time, datetime, "Trip as datetime was expected!")
                 self.assertEquals(1, trip_time.minute, "The trip time is wrong!")
+
+
+    def test_calculate_traffic_emissions(self):
+        file_mock = mock.mock_open(read_data=self._traffic_content_one)
+        with mock.patch('builtins.open', file_mock):
+            traffic_df = read_traffic_as_df("<ANY>")
+            diesel_car = DieselCar(CarSize.LARGE)
+            total_emissions = calculate_vehicle_emissions(traffic_df, diesel_car)
+            #self.assertNotEquals()
+
+
 
 if __name__ == "__main__":
     unittest.main()
