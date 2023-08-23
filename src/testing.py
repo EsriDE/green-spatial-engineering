@@ -16,6 +16,11 @@ class TestReadTraffic(TestCase):
             1,16980,9987,,69450,7.09401947966322,50.7229459953311,2023-07-07T00:01:00
             289645,12245,7195,Bike,11225393,7.08591589604559,50.7453996682822,2023-07-07T07:00:00
         """
+        self._single_trip = """
+            id,trip,person,vehicle_type,distance_crossed,longitude,latitude,trip_time
+            905,4384,2559,Car,56866,7.102642,50.72241,2023-07-07T00:08:25
+            3879,4384,2559,Car,31118831,7.095799,50.737655,2023-07-07T00:15:49
+        """
 
     def test_read(self):
         file_mock = mock.mock_open(read_data=self._traffic_content_one)
@@ -51,12 +56,12 @@ class TestReadTraffic(TestCase):
 
 
     def test_calculate_traffic_emissions(self):
-        file_mock = mock.mock_open(read_data=self._traffic_content_one)
+        file_mock = mock.mock_open(read_data=self._single_trip)
         with mock.patch('builtins.open', file_mock):
             traffic_df = read_traffic_as_df("<ANY>")
             diesel_car = DieselCar(CarSize.LARGE)
             total_emissions = calculate_vehicle_emissions(traffic_df, diesel_car)
-            #self.assertNotEquals()
+            # self.assertEquals(42*0.170824, total_emissions, "Emission Calculation is wrong!")
 
 
 
