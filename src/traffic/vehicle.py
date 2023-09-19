@@ -26,7 +26,7 @@ class Car(object):
 
 class DieselCar(Car):
 
-    def __init__(self, car_size: CarSize) -> None:
+    def __init__(self, car_size: CarSize = CarSize.AVERAGE) -> None:
         super().__init__(car_size)
 
     @property
