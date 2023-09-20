@@ -6,9 +6,7 @@ import os
 import pandas as pd
 from spatialcarbon.experiment import Experiment
 from spatialcarbon.data import get_print_emissions, get_summary_emissions
-from traffic.calculate import calculate_vehicle_emissions
 from traffic.read import read_traffic_as_df, read_traffic_as_sdf, read_traffic_to_featureclass, read_traffic_as_featureclass
-from traffic.vehicle import DieselCar
 
 
 
@@ -90,15 +88,7 @@ def count_persons_EsriBonn(project_name: str, use_case: str, csv_files_pattern: 
         emissions = tracker.stop()
         logging.getLogger("codecarbon").info(get_print_emissions(emissions))
 
-def vehicle_emissions(csv_files_pattern: str):
 
-    try:
-        for csv_file in glob(csv_files_pattern):
-            emissions = calculate_vehicle_emissions(read_traffic_as_df(csv_file), DieselCar())
-            logging.getLogger("codecarbon").info(get_print_emissions(emissions))
-
-    except Exception as ex:
-        logging.getLogger("codecarbon").error(ex)
 
 if __name__=="__main__":
 
