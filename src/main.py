@@ -108,8 +108,6 @@ if __name__=="__main__":
         # count_persons_EsriBonn("DTB", "cnt P Early Weekday", f"{traffic_dir}/early_weekday_*.csv")
         # count_persons_EsriBonn("DTB", "cnt Esri Commmute Weekday", f"{traffic_dir}/commute_weekday_*.csv")
 
-        vehicle_emissions(f"{traffic_dir}/midnight_*.csv")
-
         logging.getLogger("codecarbon").info("")
         logging.getLogger("codecarbon").info("Project summary")
         logging.getLogger("codecarbon").info("===============")
