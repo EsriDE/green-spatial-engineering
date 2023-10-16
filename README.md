@@ -54,7 +54,7 @@ We want to know **where** are **things** - not strings - **located**.
 
 #### Remarks
 
-## Walkthrough
+## Walkthrough Urban Digital Twin Bonn
 
 ArcGIS Notebooks provide a cloud-native Software-as-a-Service solution optimized for spatial data science. Every notebook starts a dedicated instance running in the cloud. So that we can easily extend this Python environment using the CodeCarbon module.
 

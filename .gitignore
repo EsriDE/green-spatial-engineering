@@ -31,6 +31,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+[Bb]uild/
+*.egg-info/
 
 # Jupyter Notebooks Checkpoints directory
 .ipynb_checkpoints/
