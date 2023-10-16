@@ -27,7 +27,20 @@ conda install -c codecarbon -c conda-forge codecarbon=2.2
 * [CodeCarbon Installation](https://mlco2.github.io/codecarbon/installation.html)
 
 ## Methods
-The spatial data science workflows represents the most common use cases we experienced during our daily work.
+The spatial data science workflows represents the most common use cases we experienced during our daily work. We decided to define the patterns related to our fundamental steps solving spatial problems.
+
+> *"Traveling the world I have met people from many diverse cultures who work in a wide range of industries. However, as I listen to their mission and challenges, there is a common pattern: we all speak the same language - it is the language of spatial analysis."* — **Christopher Cappelli**, Esri
+
+The language of spatial analysis defines a taxonomy including six high-level categories.
+
+* Understanding where
+* Measuring size, shape, and distribution
+* Determining how places are related
+* Finding the best locations and paths
+* Detecting and quantifying patterns
+* Marking predictions
+
+### Walkthrough
 
 ArcGIS Notebooks provide a cloud-native Software-as-a-Service solution optimized for spatial data science. Every notebook starts a dedicated instance running in the cloud. So that we can easily extend this Python environment using the CodeCarbon module.
 
