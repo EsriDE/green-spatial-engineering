@@ -1,0 +1,27 @@
+[build-system]
+requires = ['setuptools', 'setuptools-scm']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'greenspatial'
+version = '0.1a'
+description = 'We introduce some common practices doing spatial data science in a carbon effective way.'
+readme = 'README.md'
+requires-python = '>=3.7'
+keywords = ['geospatial', 'spatial', 'data science', 'green', 'carbon']
+classifiers = [
+    'Programming Language :: Python :: 3',
+    'License :: OSI Approved :: Apache Software License',
+    'Operating System :: OS Independent',
+]
+
+dependencies = []
+
+[tools.setuptools]
+packages = ['spatialcarbon', 'traffic']
+where = ['src']
+
+[project.urls]
+'Homepage' = 'https://www.esri.de'
+'GitHub' = 'https://github.com/EsriDE/green-spatial-engineering'
+'Documentation' = 'https://github.com/EsriDE/green-spatial-engineering#readme'
