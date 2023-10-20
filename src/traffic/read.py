@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import numpy as np
 import os
 import pandas as pd
+import sqlite3 as sql
 
 def read_traffic_as_df(filepath: str) -> pd.DataFrame:
     """
@@ -17,7 +18,7 @@ def read_traffic_as_df(filepath: str) -> pd.DataFrame:
     traffic_df["trip_time"] = pd.to_datetime(traffic_df["trip_time"])
     return traffic_df
 
-def read_traffic_as_sdf(filepath: str):
+def read_traffic_as_sdf(filepath: str) -> GeoAccessor:
     """
     Reads the traffic file as spatially enabled dataframe.
 
@@ -25,6 +26,26 @@ def read_traffic_as_sdf(filepath: str):
     """
     traffic_df = read_traffic_as_df(filepath)
     return GeoAccessor.from_xy(traffic_df, x_column="longitude", y_column="latitude")
+
+def read_sqlite_as_sdf(db_filepath: str, select_statement: str, x_column: str='longitude', y_column: str='latitude') -> GeoAccessor:
+    """
+    Reads the data from a sqlite database into main memory using a SQL statement.
+    """
+    with sql.connect(db_filepath) as connection:
+        df = pd.read_sql_query(select_statement, connection)
+        return GeoAccessor.from_xy(df, x_column, y_column)
+    
+def read_sqlite_to_featureclass(db_filepath: str, select_statement: str, x_column: str='longitude', y_column: str='latitude') -> GeoAccessor:
+    """
+    Reads the data from a sqlite database as an in memory feature class using a SQL statement.
+    """
+    filename_with_extension = os.path.basename(db_filepath)
+    filename = os.path.splitext(filename_with_extension)[0]
+
+    sdf = read_sqlite_as_sdf(db_filepath, select_statement, x_column, y_column)
+    featureclass = sdf.spatial.to_featureclass("memory/" + filename)
+    arcpy.management.ClearWorkspaceCache()
+    return featureclass
 
 def read_traffic_to_featureclass(filepath: str):
     """
