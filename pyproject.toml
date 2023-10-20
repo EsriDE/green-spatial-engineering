@@ -18,7 +18,7 @@ classifiers = [
 dependencies = []
 
 [tools.setuptools]
-packages = ['spatialcarbon', 'traffic']
+packages = ['spatialcarbon', 'traffic', 'measure']
 where = ['src']
 
 [project.urls]
