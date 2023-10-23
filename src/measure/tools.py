@@ -3,6 +3,10 @@ import datetime
 
 class MeasureTool(object):
     
+    def round_datetime(dt):
+        delta = datetime.timedelta(seconds=5)
+        return datetime.datetime.min + round((dt - datetime.datetime.min) / delta) * delta
+
     def run(self, feature_class: str):
         # TODO: Implement the add fields for 'speed, point_distance, point_direction'
 
@@ -22,14 +26,11 @@ class MeasureTool(object):
                 current_trip_id = row[1]
                 current_longitude = row[0]
                 current_latitude = row[1]
+                row[3] = MeasureTool.round_datetime()
                 current_time = datetime.datetime.timestamp(row[3])
 
                 if current_trip_id == last_trip_id:
                     current_point = create_point_geometry(current_longitude, current_latitude)
                     last_point = create_point_geometry(last_longitude, last_latitude)
                     angle, distance = current_point.angleAndDistanceTo(last_point)
-        pass
 
-    def round_datetime(dt):
-        delta = datetime.timedelta(seconds=5)
-        return datetime.datetime.min + round((dt - datetime.datetime.min) / delta) * delta
