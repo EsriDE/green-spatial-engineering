@@ -8,9 +8,13 @@ class Point(object):
         self.long = long
         self.lat = lat
 
-    def get_value(self):
+    def get_geometry(self):
 
-        return self.value
+        return self.long, self.lat
+
+    def get_name(self):
+        
+        return self.name
 
 class MeasureTool(object):
     
@@ -43,32 +47,29 @@ class MeasureTool(object):
                 row[3] = self.round_datetime()
                 current_time = datetime.datetime.timestamp(row[3])
                 
-                p1_long = Point("PointA_long", current_longitude)
-                p1_lat.get_value
-                p1_lat = Point("PointA_lat", current_latitude)
-                # point_attributes.a = lambda: None
-                # setattr(point_attributes.a, "PointA_lat", current_latitude)
-                # setattr(point_attributes.a, "PointA_long", current_longitude)
-                # setattr(point_attributes.a, "Pointb_lat", last_latitude)
-                # setattr(point_attributes.a, "PointB_long", last_longitude)
-                self.direction_speed(p1_long, p1_lat)
+                trip_point_b = Point("Point B", current_longitude, current_latitude)
+                trip_point_a = Point("Point A", last_longitude, last_latitude)
+                angle, distance = self.calculate_distance_speed(trip_point_b, trip_point_a)
                 # if current_trip_id == last_trip_id:
-
-                p1_long.value
 
         
         return feature_class
 
-    def direction_speed(self, p1, p1lat):
-        current_point = self.create_geometry(p1, Point.value)
-        last_point = self.create_geometry(last_longitude, last_latitude)
+    def calculate_distance_speed(self, trip_point_b, trip_point_a):
+        current_point = self.create_geometry(trip_point_b.lat, trip_point_b.long)
+        last_point = self.create_geometry(trip_point_a.lat, trip_point_a.long)
         angle, distance = current_point.angleAndDistanceTo(last_point)
+        
+        # speed = 
+
+        # ggf. Rückgabeparamter in Objekt anlegen und darüber zurückgeben
+        return angle, distance, speed
         
 
 
     def run(self, feature_class: str, output_feature_class: str):
         # TODO: Implement the add fields for 'speed, point_distance, point_direction'
-        
+    
         sorted_feature_class = "memory/traffic_data"
         arcpy.Sort_management(feature_class, sorted_feature_class, [["trip", "ASCENDING"], ["trip_time", "ASCENDING"]])
         feature_class = arcpy.AddFields_management(in_table=sorted_feature_class, field_description=[["point_direction", "DOUBLE", "", "", "0", ""], ["point_distance", "DOUBLE", "", "", "0", ""], ["speed", "DOUBLE", "", "", "0", ""]])
