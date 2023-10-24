@@ -1,20 +1,14 @@
 import arcpy
 import datetime
 
-class Point(object):
 
-    def __init__(self, name, long, lat) -> None:
-        self.name = name
+class Trip(object):
+
+    def __init__(self, trip_name, long, lat, trip_time) -> None:
+        self.trip_name = trip_name
         self.long = long
         self.lat = lat
-
-    def get_geometry(self):
-
-        return self.long, self.lat
-
-    def get_name(self):
-        
-        return self.name
+        self.trip_time = trip_time
 
 class MeasureTool(object):
     
@@ -34,7 +28,7 @@ class MeasureTool(object):
         last_trip_id = int
         last_longitude = float
         last_latitude = float
-        last_time = 0
+        last_trip_time = 0
 
         feature_class_column_names = ["trip", "longitude", "latitude", "trip_time", "point_direction", "point_distance", "speed"]
         with arcpy.da.UpdateCursor(feature_class, feature_class_column_names) as cur:
@@ -45,10 +39,10 @@ class MeasureTool(object):
                 current_longitude = row[0]
                 current_latitude = row[1]
                 row[3] = self.round_datetime()
-                current_time = datetime.datetime.timestamp(row[3])
+                current_trip_time = datetime.datetime.timestamp(row[3])
                 
-                trip_point_b = Point("Point B", current_longitude, current_latitude)
-                trip_point_a = Point("Point A", last_longitude, last_latitude)
+                trip_point_b = Trip("Point B", current_longitude, current_latitude, current_trip_time)
+                trip_point_a = Trip("Point A", last_longitude, last_latitude, last_trip_time)
                 angle, distance = self.calculate_distance_speed(trip_point_b, trip_point_a)
                 # if current_trip_id == last_trip_id:
 
