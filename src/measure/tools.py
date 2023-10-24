@@ -4,8 +4,9 @@ import datetime
 
 class Trip(object):
 
-    def __init__(self, trip_name, long, lat, trip_time) -> None:
-        self.trip_name = trip_name
+    def __init__(self, name, trip_id, long, lat, trip_time) -> None:
+        self.name = name
+        self.trip_id = trip_id
         self.long = long
         self.lat = lat
         self.trip_time = trip_time
@@ -30,21 +31,21 @@ class MeasureTool(object):
         last_latitude = float
         last_trip_time = 0
 
+        trip_point_a = Trip("Point A", int, float, float, 0)
+
         feature_class_column_names = ["trip", "longitude", "latitude", "trip_time", "point_direction", "point_distance", "speed"]
         with arcpy.da.UpdateCursor(feature_class, feature_class_column_names) as cur:
 
             for row in cur:
-
-                current_trip_id = row[1]
-                current_longitude = row[0]
-                current_latitude = row[1]
-                row[3] = self.round_datetime()
-                current_trip_time = datetime.datetime.timestamp(row[3])
                 
-                trip_point_b = Trip("Point B", current_longitude, current_latitude, current_trip_time)
-                trip_point_a = Trip("Point A", last_longitude, last_latitude, last_trip_time)
-                angle, distance = self.calculate_distance_speed(trip_point_b, trip_point_a)
-                # if current_trip_id == last_trip_id:
+                trip_point_b = Trip("Point B", row[0], row[1], row[2], self.round_datetime(row[3]))
+
+                if trip_point_b.trip_id == trip_point_a.trip_id:
+
+                    angle, distance = self.calculate_distance_speed(trip_point_b, trip_point_a)
+                    # if current_trip_id == last_trip_id:
+
+                trip_point_a = Trip("Point A", trip_point_b.trip_id, trip_point_b.long, trip_point_b.lat, trip_point_b.trip_time)
 
         
         return feature_class
@@ -54,7 +55,8 @@ class MeasureTool(object):
         last_point = self.create_geometry(trip_point_a.lat, trip_point_a.long)
         angle, distance = current_point.angleAndDistanceTo(last_point)
         
-        # speed = 
+        differential_seconds = datetime.timedelta.total_seconds(trip_point_b.trip_time - trip_point_a.trip_time)
+        speed = distance/differential_seconds * 3.6
 
         # ggf. Rückgabeparamter in Objekt anlegen und darüber zurückgeben
         return angle, distance, speed
