@@ -4,16 +4,20 @@ import datetime
 
 class Trip(object):
 
-    def __init__(self, name, trip_id, long, lat, trip_time) -> None:
+    def __init__(self, name, trip_id, long, lat, trip_time, angle, distance, speed) -> None:
         self.name = name
         self.trip_id = trip_id
         self.long = long
         self.lat = lat
         self.trip_time = trip_time
+        self.angle = angle
+        self.distance = distance
+        self.speed = speed
 
 class MeasureTool(object):
     
     def round_datetime(self, dt):
+        #dt = date time
         delta = datetime.timedelta(seconds=5)
         return datetime.datetime.min + round((dt - datetime.datetime.min) / delta) * delta
     
@@ -25,43 +29,38 @@ class MeasureTool(object):
         return point_geometry
 
     def measure(self, feature_class):
-
-        last_trip_id = int
-        last_longitude = float
-        last_latitude = float
-        last_trip_time = 0
-
-        trip_point_a = Trip("Point A", int, float, float, 0)
+        
+        trip_point_a = Trip("Point A", int, float, float, 0, float, float, float)
 
         feature_class_column_names = ["trip", "longitude", "latitude", "trip_time", "point_direction", "point_distance", "speed"]
         with arcpy.da.UpdateCursor(feature_class, feature_class_column_names) as cur:
 
             for row in cur:
                 
-                trip_point_b = Trip("Point B", row[0], row[1], row[2], self.round_datetime(row[3]))
-
+                trip_point_b = Trip("Point B", row[0], row[1], row[2], self.round_datetime(row[3]), float, float ,float)
                 if trip_point_b.trip_id == trip_point_a.trip_id:
 
-                    angle, distance = self.calculate_distance_speed(trip_point_b, trip_point_a)
-                    # if current_trip_id == last_trip_id:
+                    trip_point_b = self.calculate_distance_speed(trip_point_b, trip_point_a)
+                    row[4]=trip_point_b.angle
+                    row[5]=trip_point_b.distance
+                    row[6]=trip_point_b.speed
 
-                trip_point_a = Trip("Point A", trip_point_b.trip_id, trip_point_b.long, trip_point_b.lat, trip_point_b.trip_time)
+                    cur.updateRow(row)
 
-        
+                trip_point_a = Trip("Point A", trip_point_b.trip_id, trip_point_b.long, trip_point_b.lat,
+                                    trip_point_b.trip_time, trip_point_b.angle, trip_point_b.distance, trip_point_b.speed)
+
         return feature_class
 
     def calculate_distance_speed(self, trip_point_b, trip_point_a):
         current_point = self.create_geometry(trip_point_b.lat, trip_point_b.long)
         last_point = self.create_geometry(trip_point_a.lat, trip_point_a.long)
-        angle, distance = current_point.angleAndDistanceTo(last_point)
+        trip_point_b.angle, trip_point_b.distance = current_point.angleAndDistanceTo(last_point)
         
         differential_seconds = datetime.timedelta.total_seconds(trip_point_b.trip_time - trip_point_a.trip_time)
-        speed = distance/differential_seconds * 3.6
+        trip_point_b.speed = trip_point_b.distance/differential_seconds * 3.6
 
-        # ggf. Rückgabeparamter in Objekt anlegen und darüber zurückgeben
-        return angle, distance, speed
-        
-
+        return trip_point_b
 
     def run(self, feature_class: str, output_feature_class: str):
         # TODO: Implement the add fields for 'speed, point_distance, point_direction'
