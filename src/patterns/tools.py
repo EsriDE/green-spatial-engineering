@@ -5,24 +5,22 @@ class SpaceTimeCube(object):
     
     def create_space_time_cube(feature_class: str, space_time_cube_path: str, time_interval: int, distance_interval: int):
 
-        #TODO: Name für Feature Class anlegen mit Pfad etc.
-        projected_feature_class="agent_pos_fullData_0_Project"
-        out_coor_system = arcpy.SpatialReference(25832)
+        projected_feature_class = arcpy.Project_management(in_dataset = feature_class,
+                                                           out_dataset = f"{feature_class}_projected_25832",
+                                                           out_coor_system = arcpy.SpatialReference(25832))
 
-        arcpy.management.Project(feature_class, projected_feature_class, out_coor_system)
-
-        arcpy.stpm.CreateSpaceTimeCube(projected_feature_class, 
-                                       space_time_cube_path, 
+        space_time_cube = arcpy.CreateSpaceTimeCube_stpm(projected_feature_class, 
+                                       output_cube = f"{space_time_cube_path}/SpaceTimeTrafficCube.nc, 
                                        time_field ="trip_time",
                                        time_step_interval =  f"{time_interval} Minutes",
                                        distance_interval =  f"{distance_interval} Meters",
                                        aggregation_shape_type="HEXAGON_GRID")
         
-        return space_time_cube_path
+        return space_time_cube
 
-    def visualize_space_time_cube(self, space_time_cube_path:str, output_geodatabase:str):
+    def visualize_space_time_cube(space_time_cube_path:str, output_geodatabase:str):
 
-        arcpy.stpm.VisualizeSpaceTimeCube3D(in_cube = space_time_cube_path,
+        arcpy.VisualizeSpaceTimeCube3D_stpm(in_cube = space_time_cube_path,
                                             cube_variable = "COUNT",
                                             display_theme = "VALUE",
                                             output_features = output_geodatabase + "/SpaceTimeCubeVisualize")
@@ -30,7 +28,7 @@ class SpaceTimeCube(object):
 
 class HotColdSpotsTool(object):
 
-    def create_hot_cold_spots(self, feature_class: str, space_time_cube_path: str, output_geodatabase:str, time_interval: int, distance_interval: int):
+    def create_hot_cold_spots_space_time(space_time_cube_path: str, output_geodatabase:str, distance_interval: int):
     
         arcpy.stpm.EmergingHotSpotAnalysis(in_cube = space_time_cube_path,
                                            analysis_variable = "COUNT",
@@ -41,3 +39,29 @@ class HotColdSpotsTool(object):
                                         analysis_variable = "COUNT",
                                         output_features = output_geodatabase + "/SpaceTimeCube_LocalOutlierAnalysis",
                                         neighborhood_distance =  f"{distance_interval} Meters")
+        
+    def create_hot_cold_spots_feature_class(feature_class: str, output_geodatabase:str, ):
+
+        arcpy.FindPointClusters_gapro(input_points = feature_class,
+                                      out_feature_class= f"{output_geodatabase}_PointCluster",
+                                      clustering_method="DBSCAN",
+                                      minimum_points= 100,
+                                      search_distance="200 Meters",
+                                      use_time="TIME",
+                                      search_duration="10 Minutes")
+
+        arcpy.CalculateDensity_gapro(input_layer = feature_class,
+                                     out_feature_class = f"{output_geodatabase}_CalculateDensity",
+                                     bin_type = "HEXAGON",
+                                     bin_size = "200 Meters",
+                                     weight = "UNIFORM",
+                                     neighborhood_size = "300 Meters",
+                                     area_unit_scale_factor = "SQUARE_METERS",
+                                     time_step_interval = "10 Minutes")
+        
+        arcpy.FindHotSpots_gapro(point_layer = feature_class,
+                                 out_feature_class = f"{output_geodatabase}_FindHotSpots",
+                                 bin_size = "200 Meters",
+                                 neighborhood_size = "300 Meters",
+                                 time_step_interval = "10 Minutes")
+        
