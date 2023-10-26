@@ -10,7 +10,7 @@ class SpaceTimeCube(object):
                                                            out_coor_system = arcpy.SpatialReference(25832))
 
         space_time_cube = arcpy.CreateSpaceTimeCube_stpm(projected_feature_class, 
-                                       output_cube = f"{space_time_cube_path}/SpaceTimeTrafficCube.nc, 
+                                       output_cube = f"{space_time_cube_path}/SpaceTimeTrafficCube.nc", 
                                        time_field ="trip_time",
                                        time_step_interval =  f"{time_interval} Minutes",
                                        distance_interval =  f"{distance_interval} Meters",
