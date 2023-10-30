@@ -21,6 +21,18 @@ class Trip(object):
         self.angle = angle
         self.distance = distance
         self.speed = speed
+    
+    @staticmethod
+    def create_empty():
+        
+        return Trip("empty trip", None, None, None, None, None, None, None)
+
+    def equals(self, other) -> bool:
+        if other is None: 
+            return False
+        
+        return self.trip_id == other.trip_id 
+
 
 class MeasureTool(object):
     
@@ -38,7 +50,7 @@ class MeasureTool(object):
 
     def measure(self, feature_class):
         
-        trip_point_a = Trip("Point A", int, float, float, 0, float, float, float)
+        trip_point_a = Trip.create_empty()
 
         feature_class_column_names = ["trip", "longitude", "latitude", "trip_time", "point_direction", "point_distance", "speed"]
         with arcpy.da.UpdateCursor(feature_class, feature_class_column_names) as cur:
@@ -46,7 +58,7 @@ class MeasureTool(object):
             for row in cur:
                 
                 trip_point_b = Trip("Point B", row[0], row[1], row[2], self.round_datetime(row[3]), float, float ,float)
-                if trip_point_b.trip_id == trip_point_a.trip_id:
+                if trip_point_b.equals(trip_point_a):
 
                     trip_point_b = self.calculate_distance_speed(trip_point_b, trip_point_a)
                     row[4]=trip_point_b.angle
@@ -80,5 +92,3 @@ class MeasureTool(object):
         MeasureTool.measure(feature_class)
 
         arcpy.CopyFeatures_management(feature_class, output_feature_class)
-
-
