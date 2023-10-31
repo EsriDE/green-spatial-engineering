@@ -4,9 +4,9 @@ import datetime
 def convert_timefield(feature_class: str):
     
     feature_class_time_table = arcpy.ConvertTimeField_management(feature_class, 
-                                                                input_time_field = "trip_time", 
+                                                                input_time_field = "trip_time_old", 
                                                                 input_time_format = "yyyy-MM-dd HH:mm:ss;2094", 
-                                                                output_time_field = "trip_time_converted")
+                                                                output_time_field = "trip_time")
     
     return feature_class_time_table 
 

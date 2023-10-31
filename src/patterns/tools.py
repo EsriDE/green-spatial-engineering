@@ -18,9 +18,9 @@ class SpaceTimeCube(object):
                                        distance_interval =  f"{distance_interval} Meters",
                                        aggregation_shape_type="HEXAGON_GRID")
 
-        return self.space_time_cube
+        return space_time_cube
 
-    def visualize_space_time_cube(space_time_cube_path:str, output_geodatabase:str):
+    def visualize_space_time_cube(self, space_time_cube_path:str, output_geodatabase:str):
 
         arcpy.VisualizeSpaceTimeCube3D_stpm(in_cube = space_time_cube_path,
                                             cube_variable = "COUNT",
