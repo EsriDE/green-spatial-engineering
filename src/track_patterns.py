@@ -2,17 +2,17 @@ from codecarbon import track_emissions
 from configparser import ConfigParser
 from glob import glob
 import logging
-from patterns.tools import HotColdSpotsTool
+from patterns.tools import PatternsTool
 import os
 from traffic.read import read_sqlite_to_featureclass
 
 # config.user anpassen
 
 @track_emissions(project_name="Urban Digital Twin Bonn - Patterns", output_file="log/emissions.user", offline=True, country_iso_code="USA")
-def track_measure(traffic_filepath: str):
+def track_patterns(traffic_filepath: str):
     traffic_featureclass = read_sqlite_to_featureclass(traffic_file_path, "SELECT * FROM agent_pos LIMIT 10;")
-    hot_cold_spots_tool = HotColdSpotsTool()
-    hot_cold_spots_tool.run(traffic_featureclass)
+    patterns_tool = PatternsTool()
+    patterns_tool.run(traffic_featureclass)
 
 
 
