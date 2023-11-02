@@ -11,8 +11,10 @@ from traffic.read import read_sqlite_to_featureclass
 @track_emissions(project_name="Urban Digital Twin Bonn - Measure", output_file="log/emissions.user", offline=True, country_iso_code="USA")
 def track_measure(traffic_filepath: str):
     traffic_featureclass = read_sqlite_to_featureclass(traffic_file_path, "SELECT * FROM agent_pos LIMIT 10;")
+    workspace_dir = "/arcgis/home/traffic"
+    
     measure_tool = MeasureTool()
-    measure_tool.run(traffic_featureclass)
+    measure_tool.run(traffic_featureclass, workspace_dir)
     #MeasureTool.run(traffic_featureclass)
 
 

@@ -98,13 +98,19 @@ class MeasureTool(object):
 
         return trip_point_b
 
-    def run(self, feature_class: str):
-            
+    def run(self, feature_class: str, workspace_dir: str):
+        arcpy.env.overwriteOutput = True
+        gdb_workspace = f"{workspace_dir}/traffic.gdb"
+        if not arcpy.Exists(gdb_workspace):
+            gdb_result = arcpy.management.CreateFileGDB(workspace_dir, "traffic")
+            arcpy.env.workspace = gdb_result[0]
+        else:
+            arcpy.env.workspace = gdb_workspace
+
         feature_class = self.change_timefield(feature_class)
 
-        sorted_feature_class = "memory/traffic_data"
-        arcpy.Sort_management(feature_class, sorted_feature_class, [["trip", "ASCENDING"], ["trip_time_old", "ASCENDING"]])
-        feature_class = arcpy.AddFields_management(in_table=sorted_feature_class, field_description=[["trip_time", "DATE"],["point_direction", "DOUBLE", "", "", "0", ""], ["point_distance", "DOUBLE", "", "", "0", ""], ["speed", "DOUBLE", "", "", "0", ""]])
+        arcpy.Sort_management(feature_class, "traffic_data", [["trip", "ASCENDING"], ["trip_time_old", "ASCENDING"]])
+        feature_class = arcpy.AddFields_management(in_table="traffic_data", field_description=[["trip_time", "DATE"],["point_direction", "DOUBLE", "", "", "0", ""], ["point_distance", "DOUBLE", "", "", "0", ""], ["speed", "DOUBLE", "", "", "0", ""]])
 
         self.measure(feature_class)
         arcpy.DeleteField_management(feature_class, drop_field=["trip_time_old", "ORIG_FID"])

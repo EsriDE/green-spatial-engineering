@@ -62,21 +62,25 @@ class HotColdSpotsTool(object):
     
 class PatternsTool(object):
 # ToDO: config.user muss space_time_cube_path, time_interval, distance_interval enthalten 
-    def run(self, feature_class, space_time_cube_path, time_interval, distance_interval):
-        # Measure Tool
-        measure_tool = MeasureTool()
-        feature_class = measure_tool.run(feature_class)
+    def run(self, feature_class, workspace_dir, time_interval=1, distance_interval=200):
+        arcpy.env.overwriteOutput = True
+        gdb_workspace = f"{workspace_dir}/traffic.gdb"
+        if not arcpy.Exists(gdb_workspace):
+            gdb_result = arcpy.management.CreateFileGDB(workspace_dir, "traffic")
+            arcpy.env.workspace = gdb_result[0]
+        else:
+            arcpy.env.workspace = gdb_workspace
 
         # SpaceTimeCube Tool
         space_time_cube_tool = SpaceTimeCube()
         space_time_cube = space_time_cube_tool.create_space_time_cube(feature_class,
-                                                                      space_time_cube_path,
+                                                                      workspace_dir,
                                                                       time_interval,
                                                                       distance_interval)
 
         # HotColdSpots Tool
         hot_cold_spots_tool = HotColdSpotsTool()
-        hot_cold_spots_tool.create_hot_cold_spots_space_time(space_time_cube_path,
+        hot_cold_spots_tool.create_hot_cold_spots_space_time(workspace_dir,
                                                              distance_interval)
 
         hot_cold_spots_tool.create_hot_cold_spots_feature_class(feature_class,
