@@ -45,11 +45,8 @@ def read_sqlite_to_featureclass(db_filepath: str, select_statement: str, x_colum
     """
     Reads the data from a sqlite database as an in memory feature class using a SQL statement.
     """
-    filename_with_extension = os.path.basename(db_filepath)
-    filename = os.path.splitext(filename_with_extension)[0]
-
     sdf = read_sqlite_as_sdf(db_filepath, select_statement, x_column, y_column)
-    featureclass = sdf.spatial.to_featureclass("memory/" + filename)
+    featureclass = sdf.spatial.to_featureclass("memory/traffic_data")
     arcpy.management.ClearWorkspaceCache()
     return featureclass
 
@@ -70,7 +67,7 @@ def _read_traffic_to_featureclass(traffic_sdf: GeoAccessor, workspace: str):
     :param str traffic_sdf: The traffic spatial dataframe.
     :param str workspace:   The output feature workspace.
     """
-    featureclass = traffic_sdf.spatial.to_featureclass(f"{workspace}/traffic")
+    featureclass = traffic_sdf.spatial.to_featureclass(f"{workspace}/traffic_data")
     arcpy.management.ClearWorkspaceCache()
     return featureclass
 
@@ -91,7 +88,7 @@ def read_sqlite_as_featureclass(db_filepath: str, select_statement: str):
     :param str db_filepath:         The traffic sqlite file.
     :param str select_statement:    The SQL select statement.
     """
-    traffic_df = read_sqlite_as_df(db_filepath, "SELECT * FROM agent_pos;")
+    traffic_df = read_sqlite_as_df(db_filepath, select_statement)
     return _read_traffic_as_featureclass(traffic_df, "memory")
 
 def _read_traffic_as_featureclass(traffic_df: pd.DataFrame, workspace: str):
@@ -102,7 +99,7 @@ def _read_traffic_as_featureclass(traffic_df: pd.DataFrame, workspace: str):
     :param str workspace:   The output feature workspace. 
     """
     arcpy.env.overwriteOutput = True
-    feature_class_result = CreateFeatureclass(workspace, "traffic", geometry_type="POINT", spatial_reference=4326)
+    feature_class_result = CreateFeatureclass(workspace, "traffic_data", geometry_type="POINT", spatial_reference=4326)
     feature_class = feature_class_result[0]
     
     AddFields(feature_class,
