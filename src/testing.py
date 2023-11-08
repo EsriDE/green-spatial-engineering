@@ -38,7 +38,7 @@ class TestReadTraffic(TestCase):
     def test_read_to_featureclass(self):
         file_mock = mock.mock_open(read_data=self._traffic_content_one)
         with mock.patch('builtins.open', file_mock):
-            traffic_fc = read_traffic_to_featureclass("traffic")
+            traffic_fc = read_traffic_to_featureclass("traffic", "memory")
             self.assertIsNotNone(traffic_fc, "The feature class must not be none!")
 
     @unittest.skip("Local file path must be changed!")

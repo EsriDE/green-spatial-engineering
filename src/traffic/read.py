@@ -27,14 +27,20 @@ def read_traffic_as_sdf(filepath: str) -> GeoAccessor:
     traffic_df = read_traffic_as_df(filepath)
     return GeoAccessor.from_xy(traffic_df, x_column="longitude", y_column="latitude")
 
-def read_sqlite_as_sdf(db_filepath: str, select_statement: str, x_column: str='longitude', y_column: str='latitude') -> GeoAccessor:
+def read_sqlite_as_df(db_filepath: str, select_statement: str, x_column: str='longitude', y_column: str='latitude') -> GeoAccessor:
     """
     Reads the data from a sqlite database into main memory using a SQL statement.
     """
     with sql.connect(db_filepath) as connection:
-        df = pd.read_sql_query(select_statement, connection)
-        return GeoAccessor.from_xy(df, x_column, y_column)
-    
+        return pd.read_sql_query(select_statement, connection)
+
+def read_sqlite_as_sdf(db_filepath: str, select_statement: str, x_column: str='longitude', y_column: str='latitude') -> GeoAccessor:
+    """
+    Reads the data from a sqlite database into main memory using a SQL statement.
+    """
+    df = read_sqlite_as_df(db_filepath, select_statement, x_column, y_column)
+    return GeoAccessor.from_xy(df, x_column, y_column)
+        
 def read_sqlite_to_featureclass(db_filepath: str, select_statement: str, x_column: str='longitude', y_column: str='latitude') -> GeoAccessor:
     """
     Reads the data from a sqlite database as an in memory feature class using a SQL statement.
@@ -47,40 +53,56 @@ def read_sqlite_to_featureclass(db_filepath: str, select_statement: str, x_colum
     arcpy.management.ClearWorkspaceCache()
     return featureclass
 
-def read_traffic_to_featureclass(filepath: str):
+def read_traffic_to_featureclass(filepath: str, workspace: str):
     """
-    Saves the spatially enabled dataframe as an in memory feature class.
+    Converts the traffic data to a feature class.
 
-    :param str filepath:
+    :param str filepath:    The traffic file.
+    :param str workspace:   The output feature workspace.
     """
-    filename_with_extension = os.path.basename(filepath)
-    filename = os.path.splitext(filename_with_extension)[0]
-
     traffic_sdf = read_traffic_as_sdf(filepath)
-    featureclass = traffic_sdf.spatial.to_featureclass("memory/" + filename)
+    return _read_traffic_to_featureclass(traffic_sdf, workspace)
+
+def _read_traffic_to_featureclass(traffic_sdf: GeoAccessor, workspace: str):
+    """
+    Converts the traffic data to a feature class.
+
+    :param str traffic_sdf: The traffic spatial dataframe.
+    :param str workspace:   The output feature workspace.
+    """
+    featureclass = traffic_sdf.spatial.to_featureclass(f"{workspace}/traffic")
     arcpy.management.ClearWorkspaceCache()
     return featureclass
 
-def read_traffic_as_featureclass(workspace: str, filepath: str):
+def read_traffic_as_featureclass(filepath: str, workspace: str):
     """
-    Saves the traffic data as an in memory feature class.
+    Inserts the traffic data into a feature class.
 
-    :param str filepath:
+    :param str filepath:    The traffic file.
+    :param str workspace:   The output feature workspace. 
+    """
+    traffic_df = read_traffic_as_df(filepath)
+    return _read_traffic_as_featureclass(traffic_df, workspace)
+
+def read_sqlite_as_featureclass(db_filepath: str, select_statement: str):
+    """
+    Inserts the traffic data into an in memory feature class.
+
+    :param str db_filepath:         The traffic sqlite file.
+    :param str select_statement:    The SQL select statement.
+    """
+    traffic_df = read_sqlite_as_df(db_filepath, "SELECT * FROM agent_pos;")
+    return _read_traffic_as_featureclass(traffic_df, "memory")
+
+def _read_traffic_as_featureclass(traffic_df: pd.DataFrame, workspace: str):
+    """
+    Inserts the traffic data into a feature class.
+
+    :param str traffic_df:  The traffic dataframe.
+    :param str workspace:   The output feature workspace. 
     """
     arcpy.env.overwriteOutput = True
-    
-    filename_with_extension = os.path.basename(filepath)
-    filename = os.path.splitext(filename_with_extension)[0]
-
-    # Siehe hier: https://github.com/esride-jts/geoint-toolbox/blob/master/src/geoint/gdelt_workspace.py
-    
-    # trip time as DATE as so on
-    traffic_df = read_traffic_as_df(filepath)    
-    #traffic_df["trip_time"] = traffic_df["trip_time"].apply(lambda trip_time: datetime(trip_time.year, trip_time.month, trip_time.day)) #traffic_df["trip_time"].apply(lambda datetime: datetime.isoformat())
-    #traffic_df["XY"] = list(zip(traffic_df["longitude"], traffic_df["latitude"]))
-    #traffic_np = traffic_df.to_records(index=False)
-    
-    feature_class_result = CreateFeatureclass(workspace, filename, geometry_type="POINT", spatial_reference=4326)
+    feature_class_result = CreateFeatureclass(workspace, "traffic", geometry_type="POINT", spatial_reference=4326)
     feature_class = feature_class_result[0]
     
     AddFields(feature_class,
