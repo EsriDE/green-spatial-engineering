@@ -8,7 +8,7 @@ from traffic.read import read_sqlite_to_featureclass
 
 # config.user anpassen
 
-@track_emissions(project_name="Urban Digital Twin Bonn - Patterns", output_file="log/emissions.user", offline=True, country_iso_code="USA")
+@track_emissions(project_name="Urban Digital Twin Bonn - Patterns", output_file="log/emissions-patterns.user", offline=True, country_iso_code="USA")
 def track_patterns():
     traffic_featureclass = "traffic_data"
     workspace_dir = "/arcgis/home/traffic"

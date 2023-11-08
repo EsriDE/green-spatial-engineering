@@ -8,11 +8,11 @@ from traffic.read import read_sqlite_to_featureclass, read_sqlite_as_featureclas
 
 
 
-@track_emissions(project_name="Urban Digital Twin Bonn - Read SDF", output_file="log/emissions.user", offline=True, country_iso_code="USA")
+@track_emissions(project_name="Urban Digital Twin Bonn - Read SDF", output_file="log/emissions-read.user", offline=True, country_iso_code="USA")
 def track_read_sdf(traffic_filepath: str):
     read_sqlite_to_featureclass(traffic_file_path, "SELECT * FROM agent_pos;")
 
-@track_emissions(project_name="Urban Digital Twin Bonn - Read FC", output_file="log/emissions.user", offline=True, country_iso_code="USA")
+@track_emissions(project_name="Urban Digital Twin Bonn - Read FC", output_file="log/emissions-read.user", offline=True, country_iso_code="USA")
 def track_read_fc(traffic_filepath: str):
     read_sqlite_as_featureclass(traffic_file_path, "SELECT * FROM agent_pos;")
 
