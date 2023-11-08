@@ -5,17 +5,11 @@ from sys import argv
 class SpaceTimeCube(object):
     
     def create_space_time_cube(self, feature_class: str, space_time_cube_path: str, time_interval: int, distance_interval: int):
-
-        """
         geodatabase_feature_class = arcpy.ExportFeatures_conversion(feature_class, "trafficFeatureClass")
 
         projected_feature_class = arcpy.Project_management(in_dataset = geodatabase_feature_class,
                                                            out_dataset = f"{geodatabase_feature_class}_projected_25832",
                                                            out_coor_system = arcpy.SpatialReference(25832))
-
-        """
-        geodatabase_feature_class = "trafficFeatureClass"
-        projected_feature_class = f"{geodatabase_feature_class}_projected_25832"
 
         # Always convert to an absolute path
         # otherwise relative paths can cause an "ERROR 000210: Cannot create output <value>."
