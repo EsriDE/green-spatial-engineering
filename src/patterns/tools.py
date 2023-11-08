@@ -1,18 +1,28 @@
 import arcpy
+import os
 from sys import argv
 
 class SpaceTimeCube(object):
     
     def create_space_time_cube(self, feature_class: str, space_time_cube_path: str, time_interval: int, distance_interval: int):
 
+        """
         geodatabase_feature_class = arcpy.ExportFeatures_conversion(feature_class, "trafficFeatureClass")
 
         projected_feature_class = arcpy.Project_management(in_dataset = geodatabase_feature_class,
                                                            out_dataset = f"{geodatabase_feature_class}_projected_25832",
                                                            out_coor_system = arcpy.SpatialReference(25832))
 
+        """
+        geodatabase_feature_class = "trafficFeatureClass"
+        projected_feature_class = f"{geodatabase_feature_class}_projected_25832"
+
+        # Always convert to an absolute path
+        # otherwise relative paths can cause an "ERROR 000210: Cannot create output <value>."
+        space_time_cube_filepath = os.path.abspath(os.path.join(space_time_cube_path, "SpaceTimeTrafficCube.nc"))
+
         space_time_cube = arcpy.CreateSpaceTimeCube_stpm(projected_feature_class, 
-                                       output_cube = f"{space_time_cube_path}/SpaceTimeTrafficCube.nc", 
+                                       output_cube = space_time_cube_filepath, 
                                        time_field ="trip_time",
                                        time_step_interval = f"{time_interval} Minutes",
                                        distance_interval =  f"{distance_interval} Meters",
@@ -80,11 +90,17 @@ class PatternsTool(object):
 
         # HotColdSpots Tool
         hot_cold_spots_tool = HotColdSpotsTool()
-        hot_cold_spots_tool.create_hot_cold_spots_space_time(workspace_dir,
+        hot_cold_spots_tool.create_hot_cold_spots_space_time(space_time_cube,
                                                              distance_interval)
+        
+        # Layer must have time enabled
+        """
+        layer_result = arcpy.management.MakeFeatureLayer(feature_class, "traffic_layer")
+        traffic_layer = layer_result.getOutput(0)
+        traffic_layer.enableTime("trip_time")
 
-        hot_cold_spots_tool.create_hot_cold_spots_feature_class(feature_class,
+        hot_cold_spots_tool.create_hot_cold_spots_feature_class(traffic_layer,
                                                                 distance_interval,
                                                                 time_interval)
-        
+        """
         return space_time_cube
