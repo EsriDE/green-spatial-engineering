@@ -2,6 +2,7 @@ from codecarbon import track_emissions
 from configparser import ConfigParser
 from glob import glob
 import logging
+from track_read import track_read
 from track_measure import track_measure
 from track_patterns import track_patterns
 
@@ -21,6 +22,7 @@ if __name__=="__main__":
             raise ValueError("Traffic file path not specified!")
         
         for _ in range(0, execution_count):
+            track_read(traffic_file_path)
             track_measure(traffic_file_path)
             track_patterns()
 
